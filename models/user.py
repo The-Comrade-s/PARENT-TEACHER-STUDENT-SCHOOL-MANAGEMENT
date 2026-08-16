@@ -45,7 +45,10 @@ class User(BaseModel):
 
     roles = relationship("Role", secondary=user_roles, back_populates="users")
 
-    teacher_profile = relationship("TeacherProfile", back_populates="user", uselist=False)
+    teacher_profile = relationship(
+        "TeacherProfile", back_populates="user", uselist=False,
+        foreign_keys="TeacherProfile.user_id",
+    )
     parent_profile = relationship("ParentProfile", back_populates="user", uselist=False)
     student_profile = relationship("StudentProfile", back_populates="user", uselist=False)
 
