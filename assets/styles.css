@@ -1,0 +1,59 @@
+/* PTMS visual identity: deep blue, off-white, black, neutral grays. No emoji is used anywhere in this codebase. */
+
+:root {
+    --ptms-primary: #0B3D91;
+    --ptms-primary-light: #1F5FBF;
+    --ptms-background: #F7F7F2;
+    --ptms-surface: #FFFFFF;
+    --ptms-text: #111111;
+    --ptms-neutral: #6B7280;
+}
+
+.stApp {
+    background-color: var(--ptms-background);
+}
+
+.ptms-card {
+    background-color: var(--ptms-surface);
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.ptms-header-bar {
+    background-color: var(--ptms-primary);
+    color: #FFFFFF;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.25rem;
+}
+
+.ptms-header-bar h1, .ptms-header-bar p {
+    color: #FFFFFF;
+    margin: 0;
+}
+
+.ptms-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--ptms-primary-light);
+    color: #FFFFFF;
+}
+
+.ptms-badge-pending {
+    background-color: var(--ptms-neutral);
+}
+
+section[data-testid="stSidebar"] {
+    background-color: var(--ptms-surface);
+    border-right: 1px solid #E5E7EB;
+}
+
+button[kind="primary"] {
+    background-color: var(--ptms-primary) !important;
+    border-color: var(--ptms-primary) !important;
+}
