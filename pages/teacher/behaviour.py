@@ -5,7 +5,7 @@ from components.ui import page_header, load_theme, empty_state
 from database.connection import get_session
 from models.people import TeacherProfile
 from permissions.rbac import require_role, ROLE_TEACHER
-from services import behaviour_service, notification_service
+from services import behaviour_service, notification_service, people_service
 
 
 def render():
@@ -41,8 +41,7 @@ def render():
                 student.id, user.id, category, description, disciplinary_action
             )
             if ok and notify_parent:
-                for link in student.parent_links:
-                    parent_user_id = link.parent.user_id
+                for parent_user_id in people_service.get_parent_user_ids_for_student(student.id):
                     notification_service.create_notification(
                         parent_user_id, "New behaviour record",
                         f"A {category} behaviour record was added for {student.admission_number}.",

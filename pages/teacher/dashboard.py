@@ -17,6 +17,10 @@ def render():
         profile = db.execute(
             select(TeacherProfile).where(TeacherProfile.user_id == user.id)
         ).scalar_one_or_none()
+        # Relationship access must happen here, while the session is still open --
+        # build plain data now so nothing downstream needs a live session.
+        class_names = [c.name for c in profile.classes_as_teacher] if profile else []
+        approval_status = profile.approval_status if profile else None
     finally:
         db.close()
 
@@ -24,22 +28,21 @@ def render():
         empty_state("Your teacher profile could not be found. Contact an administrator.")
         return
 
-    if profile.approval_status == "pending":
+    if approval_status == "pending":
         st.warning("Your account is pending administrator approval. Some features are unavailable until then.")
         return
 
-    assigned_classes = profile.classes_as_teacher
     metric_row([
-        ("Assigned Classes", str(len(assigned_classes))),
+        ("Assigned Classes", str(len(class_names))),
         ("Assigned Subjects", "0"),
         ("Pending Assignments", "0"),
         ("Unread Messages", "0"),
     ])
 
     st.subheader("Your Classes")
-    if assigned_classes:
-        for c in assigned_classes:
-            st.markdown(f'<div class="ptms-card">{c.name}</div>', unsafe_allow_html=True)
+    if class_names:
+        for name in class_names:
+            st.markdown(f'<div class="ptms-card">{name}</div>', unsafe_allow_html=True)
     else:
         empty_state("You are not currently assigned as a class teacher for any class.")
 

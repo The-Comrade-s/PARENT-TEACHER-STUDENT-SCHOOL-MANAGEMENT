@@ -17,6 +17,8 @@ def render():
     db = get_session()
     try:
         profile = db.execute(select(StudentProfile).where(StudentProfile.user_id == user.id)).scalar_one_or_none()
+        # Relationship access must happen here, while the session is still open.
+        class_name = (profile.current_class.name if profile and profile.current_class else "Unassigned")
     finally:
         db.close()
 
@@ -26,7 +28,6 @@ def render():
 
     term = school_service.get_current_term()
     session = school_service.get_current_session()
-    class_name = profile.current_class.name if profile.current_class else "Unassigned"
 
     if term is None:
         st.info("No academic term is currently active.")

@@ -27,7 +27,14 @@ def render():
                 student = db.get(StudentProfile, link.student_id)
                 if student:
                     child_user = db.get(User, student.user_id) if student.user_id else None
-                    children.append((student, child_user))
+                    # Relationship access must happen here, while the session is open.
+                    class_name = student.current_class.name if student.current_class else "Unassigned"
+                    children.append({
+                        "id": student.id,
+                        "admission_number": student.admission_number,
+                        "name": child_user.full_name if child_user else student.admission_number,
+                        "class_name": class_name,
+                    })
     finally:
         db.close()
 
@@ -38,21 +45,19 @@ def render():
     term = school_service.get_current_term()
     session = school_service.get_current_session()
 
-    for student, child_user in children:
-        name = child_user.full_name if child_user else student.admission_number
-        class_name = student.current_class.name if student.current_class else "Unassigned"
-        st.markdown(f'<div class="ptms-card"><strong>{name}</strong> &middot; {class_name}</div>', unsafe_allow_html=True)
+    for child in children:
+        st.markdown(f'<div class="ptms-card"><strong>{child["name"]}</strong> &middot; {child["class_name"]}</div>', unsafe_allow_html=True)
 
         if term is None:
             st.caption("No academic term is currently active.")
             continue
 
         pdf_bytes = generate_report_card_pdf(
-            student.admission_number, name, class_name, student.id,
+            child["admission_number"], child["name"], child["class_name"], child["id"],
             term.name, session.name if session else "",
         )
         st.download_button(
             "Download Report Card (PDF)", data=pdf_bytes,
-            file_name=f"report_card_{student.admission_number}.pdf", mime="application/pdf",
-            key=f"download_{student.id}",
+            file_name=f"report_card_{child['admission_number']}.pdf", mime="application/pdf",
+            key=f"download_{child['id']}",
         )

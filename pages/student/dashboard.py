@@ -17,6 +17,8 @@ def render():
         profile = db.execute(
             select(StudentProfile).where(StudentProfile.user_id == user.id)
         ).scalar_one_or_none()
+        # Relationship access must happen here, while the session is still open.
+        class_name = (profile.current_class.name if profile and profile.current_class else "Unassigned")
     finally:
         db.close()
 
@@ -25,7 +27,7 @@ def render():
         return
 
     metric_row([
-        ("Current Class", profile.current_class.name if profile.current_class else "Unassigned"),
+        ("Current Class", class_name),
         ("Attendance Rate", "N/A"),
         ("Pending Assignments", "0"),
         ("Notifications", "0"),

@@ -22,7 +22,17 @@ def render():
             for link in links:
                 student = db.get(StudentProfile, link.student_id)
                 if student:
-                    children.append(student)
+                    # Relationship access must happen here, while the session is open.
+                    teacher_id = student.current_class.class_teacher_id if student.current_class else None
+                    teacher_user_id = None
+                    if student.current_class and student.current_class.class_teacher:
+                        teacher_user_id = student.current_class.class_teacher.user_id
+                    children.append({
+                        "id": student.id,
+                        "admission_number": student.admission_number,
+                        "teacher_id": teacher_id,
+                        "teacher_user_id": teacher_user_id,
+                    })
     finally:
         db.close()
 
@@ -30,19 +40,18 @@ def render():
         empty_state("No children are linked to your account yet.")
         return
 
-    child_options = {c.admission_number: c for c in children}
+    child_options = {c["admission_number"]: c for c in children}
     with st.form("meeting_request_form"):
         child_label = st.selectbox("Child", list(child_options.keys()))
         reason = st.text_area("Reason for meeting")
         requested_time = st.text_input("Preferred date/time (optional)")
         if st.form_submit_button("Request Meeting", type="primary"):
             child = child_options[child_label]
-            teacher_id = child.current_class.class_teacher_id if child.current_class else None
-            ok, message = meeting_service.request_meeting(user.id, teacher_id, child.id, reason)
-            if ok and teacher_id:
-                teacher_user_id = child.current_class.class_teacher.user_id
+            ok, message = meeting_service.request_meeting(user.id, child["teacher_id"], child["id"], reason)
+            if ok and child["teacher_user_id"]:
                 notification_service.create_notification(
-                    teacher_user_id, "New meeting request", f"A parent requested a meeting about {child.admission_number}."
+                    child["teacher_user_id"], "New meeting request",
+                    f"A parent requested a meeting about {child['admission_number']}.",
                 )
             st.success(message) if ok else st.error(message)
             if ok:

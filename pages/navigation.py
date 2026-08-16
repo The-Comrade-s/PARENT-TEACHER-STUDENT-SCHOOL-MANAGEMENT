@@ -26,6 +26,7 @@ def build_navigation(role_names: list[str]) -> st.navigation:
 
     pages: dict[str, list[st.Page]] = {}
     from pages.notifications import render as notifications_render
+    from pages.announcements import render as announcements_render
 
     if is_admin:
         from pages.admin import (
@@ -88,6 +89,7 @@ def build_navigation(role_names: list[str]) -> st.navigation:
         pages["Communication"] = [
             st.Page(messages.render, title="Messages", url_path="teacher-messages"),
             st.Page(meetings.render, title="Meeting Requests", url_path="teacher-meetings"),
+            st.Page(announcements_render, title="Announcements", url_path="teacher-announcements"),
             st.Page(notifications_render, title="Notifications", url_path="teacher-notifications"),
         ]
 
@@ -104,6 +106,7 @@ def build_navigation(role_names: list[str]) -> st.navigation:
         pages["Communication"] = [
             st.Page(messages.render, title="Messages", url_path="parent-messages"),
             st.Page(meetings.render, title="Meetings", url_path="parent-meetings"),
+            st.Page(announcements_render, title="Announcements", url_path="parent-announcements"),
             st.Page(notifications_render, title="Notifications", url_path="parent-notifications"),
         ]
 
@@ -118,6 +121,7 @@ def build_navigation(role_names: list[str]) -> st.navigation:
             st.Page(results.render, title="My Results", url_path="student-results"),
         ]
         pages["Communication"] = [
+            st.Page(announcements_render, title="Announcements", url_path="student-announcements"),
             st.Page(notifications_render, title="Notifications", url_path="student-notifications"),
         ]
 
