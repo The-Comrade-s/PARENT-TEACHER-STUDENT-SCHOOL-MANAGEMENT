@@ -132,6 +132,18 @@ def set_student_status(student_id: str, status: str) -> tuple[bool, str]:
         db.close()
 
 
+def get_parent_user_ids_for_student(student_id: str) -> list[str]:
+    """Returns the user_id of every parent linked to a student, for notification fan-out."""
+    db = get_session()
+    try:
+        student = db.get(StudentProfile, student_id)
+        if student is None:
+            return []
+        return [link.parent.user_id for link in student.parent_links]
+    finally:
+        db.close()
+
+
 # --------------------------------------------------------- parent linking --
 
 def link_parent_to_student(parent_profile_id: str, student_profile_id: str, is_primary: bool = False) -> tuple[bool, str]:
